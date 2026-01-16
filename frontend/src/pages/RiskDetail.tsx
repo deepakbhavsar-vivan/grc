@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { risksApi, assetsApi, controlsApi } from '../lib/api';
 import { RiskDetail as RiskDetailData } from '../lib/apiTypes';
@@ -54,8 +54,14 @@ export default function RiskDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const [searchParams] = useSearchParams();
 
-  const [activeTab, setActiveTab] = useState<'assets' | 'controls' | 'scenarios' | 'tasks' | 'history'>('controls');
+  // Read initial tab from URL query param
+  const tabFromUrl = searchParams.get('tab') as 'assets' | 'controls' | 'scenarios' | 'tasks' | 'history' | null;
+  const validTabs = ['assets', 'controls', 'scenarios', 'tasks', 'history'];
+  const initialTab = tabFromUrl && validTabs.includes(tabFromUrl) ? tabFromUrl : 'controls';
+
+  const [activeTab, setActiveTab] = useState<'assets' | 'controls' | 'scenarios' | 'tasks' | 'history'>(initialTab);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showTreatmentModal, setShowTreatmentModal] = useState(false);
   const [showLinkControlModal, setShowLinkControlModal] = useState(false);

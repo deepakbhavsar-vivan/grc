@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { risksApi, riskTasksApi, RiskWorkflowTask } from '../lib/api';
 import { format, formatDistanceToNow, isPast } from 'date-fns';
 import toast from 'react-hot-toast';
@@ -20,6 +20,7 @@ type QueueTab = 'tasks' | 'assessments' | 'treatments' | 'approvals' | 'reviews'
 export default function RiskQueue() {
   const [activeTab, setActiveTab] = useState<QueueTab>('tasks');
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Get current user ID from localStorage
   const userId = localStorage.getItem('userId') || '';
@@ -38,10 +39,13 @@ export default function RiskQueue() {
 
   // Task mutations
   const startTaskMutation = useMutation({
-    mutationFn: (taskId: string) => riskTasksApi.start(taskId),
-    onSuccess: () => {
+    mutationFn: ({ taskId, riskId }: { taskId: string; riskId: string }) => 
+      riskTasksApi.start(taskId).then(res => ({ ...res, riskId })),
+    onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ['risk-tasks'] });
       toast.success('Task started');
+      // Navigate to the risk detail page with tasks tab
+      navigate(`/risks/${data.riskId}?tab=tasks`);
     },
     onError: (error: any) => {
       toast.error(error.response?.data?.message || 'Failed to start task');
@@ -319,7 +323,7 @@ export default function RiskQueue() {
                         <div className="flex items-center gap-2 shrink-0">
                           {task.status === 'pending' && (
                             <button
-                              onClick={() => startTaskMutation.mutate(task.id)}
+                              onClick={() => startTaskMutation.mutate({ taskId: task.id, riskId: task.riskId })}
                               disabled={startTaskMutation.isPending}
                               className="flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm"
                             >
