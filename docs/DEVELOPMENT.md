@@ -649,21 +649,39 @@ const prisma = new PrismaClient({
 
 ### ESLint Configuration
 
+The project uses ESLint v9 with flat config format (`eslint.config.js`):
+
 ```javascript
-// .eslintrc.js
-module.exports = {
-  extends: [
-    'eslint:recommended',
-    '@typescript-eslint/recommended',
-    'plugin:react/recommended',
-    'plugin:react-hooks/recommended',
-  ],
-  rules: {
-    '@typescript-eslint/explicit-function-return-type': 'off',
-    '@typescript-eslint/no-explicit-any': 'warn',
-    'react/react-in-jsx-scope': 'off',
+// eslint.config.js (root - for backend/services)
+import eslint from '@eslint/js';
+import tseslint from 'typescript-eslint';
+import eslintConfigPrettier from 'eslint-config-prettier';
+import globals from 'globals';
+
+export default [
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  eslintConfigPrettier,
+  {
+    languageOptions: {
+      globals: { ...globals.node },
+    },
+    rules: {
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
   },
-};
+];
+```
+
+For the frontend, the config additionally includes React plugins:
+
+```javascript
+// frontend/eslint.config.js
+import globals from 'globals';
+import reactHooks from 'eslint-plugin-react-hooks';
+import reactRefresh from 'eslint-plugin-react-refresh';
+// ... (see frontend/eslint.config.js for full config)
 ```
 
 ### Prettier Configuration

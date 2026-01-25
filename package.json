@@ -12,6 +12,12 @@
     "frontend"
   ],
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "lint:check": "eslint . --max-warnings=0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspaces --if-present",
     "validate:production": "./scripts/validate-production.sh",
     "validate:production:strict": "./scripts/validate-production.sh --strict",
     "backup": "./deploy/backup.sh",
@@ -28,7 +34,13 @@
     "test:load:quick": "./tests/load/run-load-tests.sh quick"
   },
   "devDependencies": {
-    "prisma": "^5.22.0"
+    "@eslint/js": "^9.18.0",
+    "eslint": "^9.18.0",
+    "eslint-config-prettier": "^9.1.0",
+    "globals": "^14.0.0",
+    "prettier": "^3.4.0",
+    "prisma": "^5.22.0",
+    "typescript-eslint": "^8.20.0"
   },
   "dependencies": {
     "@prisma/client": "^5.22.0"
