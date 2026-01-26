@@ -51,6 +51,9 @@ export interface SOC2AnalysisResult {
   suggestedRiskScore: string;
   summary: string;
   confidence: number;
+  // Mock mode indicators
+  isMockMode?: boolean;
+  mockModeReason?: string;
 }
 
 // ============================================
@@ -278,9 +281,18 @@ Respond in JSON format with this structure:
     vendorId: string,
     documentTitle: string,
   ): SOC2AnalysisResult {
+    this.logger.warn(`Generating mock SOC 2 analysis for document ${documentId} - AI service not configured`);
+    
     const now = new Date();
     const startDate = new Date(now);
     startDate.setFullYear(startDate.getFullYear() - 1);
+
+    // Determine mock mode reason
+    const mockReason = !process.env.OPENAI_API_KEY 
+      ? 'AI service not configured - set OPENAI_API_KEY environment variable'
+      : process.env.AI_MOCK_MODE === 'true'
+        ? 'AI_MOCK_MODE is enabled'
+        : 'AI service call failed - using demo data';
 
     return {
       documentId,
@@ -290,20 +302,20 @@ Respond in JSON format with this structure:
         startDate: startDate.toISOString().split('T')[0],
         endDate: now.toISOString().split('T')[0],
       },
-      serviceOrganization: 'Vendor Organization',
-      auditor: 'Sample Audit Firm LLP',
+      serviceOrganization: 'Vendor Organization (Demo)',
+      auditor: 'Sample Audit Firm LLP (Demo)',
       opinionType: 'Unqualified',
       exceptions: [
         {
           controlId: 'CC6.1',
-          description: 'Access review process was not consistently performed on a quarterly basis during the audit period.',
+          description: '[DEMO] Access review process was not consistently performed on a quarterly basis during the audit period.',
           severity: 'medium',
           category: 'Security',
           managementResponse: 'Management has implemented automated quarterly access review reminders and assigned dedicated ownership.',
         },
         {
           controlId: 'CC7.2',
-          description: 'Change management documentation was incomplete for 2 of 25 sampled changes.',
+          description: '[DEMO] Change management documentation was incomplete for 2 of 25 sampled changes.',
           severity: 'low',
           category: 'Security',
           managementResponse: 'Enhanced change management checklist has been implemented.',
@@ -311,24 +323,24 @@ Respond in JSON format with this structure:
       ],
       cuecs: [
         {
-          description: 'User access permissions should be reviewed and approved by the User Entity prior to granting access.',
+          description: '[DEMO] User access permissions should be reviewed and approved by the User Entity prior to granting access.',
           responsibility: 'User Entity',
           status: 'unknown',
         },
         {
-          description: 'User Entity is responsible for the security of credentials used to access the service.',
+          description: '[DEMO] User Entity is responsible for the security of credentials used to access the service.',
           responsibility: 'User Entity',
           status: 'unknown',
         },
         {
-          description: 'User Entity should maintain appropriate network security controls for accessing the service.',
+          description: '[DEMO] User Entity should maintain appropriate network security controls for accessing the service.',
           responsibility: 'User Entity',
           status: 'unknown',
         },
       ],
       subserviceOrganizations: [
         {
-          name: 'Amazon Web Services (AWS)',
+          name: 'Amazon Web Services (AWS) (Demo)',
           services: 'Cloud Infrastructure',
           carveOutOrInclusiveMethod: 'carve_out',
         },
@@ -336,14 +348,16 @@ Respond in JSON format with this structure:
       controlGaps: [
         {
           area: 'Access Management',
-          description: 'Quarterly access reviews could benefit from automation to ensure consistency.',
+          description: '[DEMO] Quarterly access reviews could benefit from automation to ensure consistency.',
           recommendation: 'Implement automated access review workflows with approval tracking.',
           priority: 'medium',
         },
       ],
       suggestedRiskScore: 'low',
-      summary: `Analysis of ${documentTitle}: The SOC 2 Type II report received an unqualified opinion. Two minor exceptions were noted related to access review timing and change management documentation. Both have been addressed by management with corrective actions. Overall, the vendor demonstrates a strong security posture with mature controls. Recommended risk rating: Low.`,
-      confidence: 85,
+      summary: `[DEMO MODE] Analysis of ${documentTitle}: This is sample data because the AI service is not configured. The demo shows a SOC 2 Type II report with an unqualified opinion and two minor exceptions. Configure OPENAI_API_KEY for real AI-powered analysis.`,
+      confidence: 50, // Lower confidence for mock data
+      isMockMode: true,
+      mockModeReason: mockReason,
     };
   }
 
