@@ -30,6 +30,9 @@ interface VendorRiskAssessmentResult {
   contractualRequirements: string[];
   monitoringRequirements: MonitoringRequirement[];
   dueDate: string;
+  // Mock mode indicators
+  isMockMode?: boolean;
+  mockModeReason?: string;
 }
 
 interface RiskCategory {
@@ -55,7 +58,8 @@ export async function assessVendorRisk(params: VendorRiskAssessorParams): Promis
   const { vendor, assessmentData, riskAppetite = 'medium' } = params;
 
   if (!aiClient.isConfigured()) {
-    return generateMockAssessment(vendor, assessmentData, riskAppetite);
+    console.warn(`[VendorRiskAssessor] AI not configured - using mock assessment for vendor: ${vendor.name}`);
+    return generateMockAssessment(vendor, assessmentData, riskAppetite, 'AI service not configured - set OPENAI_API_KEY or ANTHROPIC_API_KEY');
   }
 
   const systemPrompt = `You are a third-party risk management expert. Assess the risk of engaging with the specified vendor.
@@ -77,16 +81,19 @@ Provide comprehensive risk assessment with actionable recommendations.`;
     return {
       assessedAt: new Date().toISOString(),
       ...result,
+      isMockMode: false,
     };
-  } catch {
-    return generateMockAssessment(vendor, assessmentData, riskAppetite);
+  } catch (error) {
+    console.warn(`[VendorRiskAssessor] AI call failed - using mock assessment: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    return generateMockAssessment(vendor, assessmentData, riskAppetite, `AI service call failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
 
 function generateMockAssessment(
   vendor: VendorRiskAssessorParams['vendor'],
   assessmentData: VendorRiskAssessorParams['assessmentData'],
-  riskAppetite: string
+  riskAppetite: string,
+  mockReason: string = 'AI service not available'
 ): VendorRiskAssessmentResult {
   // Calculate risk factors
   const hasSecurityCerts = assessmentData?.certifications?.some(c => 
@@ -135,29 +142,29 @@ function generateMockAssessment(
       category: 'Security Posture',
       score: hasSecurityCerts ? 25 : 70,
       findings: hasSecurityCerts 
-        ? [`Vendor holds: ${assessmentData?.certifications?.join(', ')}`]
-        : ['No recognized security certifications'],
-      concerns: hasSecurityCerts ? [] : ['Lack of third-party security validation'],
+        ? [`[DEMO] Vendor holds: ${assessmentData?.certifications?.join(', ')}`]
+        : ['[DEMO] No recognized security certifications'],
+      concerns: hasSecurityCerts ? [] : ['[DEMO] Lack of third-party security validation'],
     },
     {
       category: 'Data Handling',
       score: hasDataAccess ? 60 : 20,
-      findings: vendor.dataAccess?.map(d => `Access to: ${d}`) || ['No data access required'],
-      concerns: hasDataAccess ? ['Vendor will have access to sensitive data'] : [],
+      findings: vendor.dataAccess?.map(d => `[DEMO] Access to: ${d}`) || ['[DEMO] No data access required'],
+      concerns: hasDataAccess ? ['[DEMO] Vendor will have access to sensitive data'] : [],
     },
     {
       category: 'Operational Risk',
       score: isCriticalService ? 55 : 30,
-      findings: [`Services: ${vendor.services?.join(', ') || 'Not specified'}`],
-      concerns: isCriticalService ? ['Critical service dependency'] : [],
+      findings: [`[DEMO] Services: ${vendor.services?.join(', ') || 'Not specified'}`],
+      concerns: isCriticalService ? ['[DEMO] Critical service dependency'] : [],
     },
     {
       category: 'Historical Performance',
       score: hasPreviousIncidents ? 80 : 20,
       findings: hasPreviousIncidents 
-        ? assessmentData?.previousIncidents || []
-        : ['No known security incidents'],
-      concerns: hasPreviousIncidents ? ['Previous security incidents on record'] : [],
+        ? (assessmentData?.previousIncidents || []).map(i => `[DEMO] ${i}`)
+        : ['[DEMO] No known security incidents'],
+      concerns: hasPreviousIncidents ? ['[DEMO] Previous security incidents on record'] : [],
     },
   ];
 
@@ -233,6 +240,8 @@ function generateMockAssessment(
       },
     ],
     dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+    isMockMode: true,
+    mockModeReason: mockReason,
   };
 }
 
