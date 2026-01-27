@@ -194,7 +194,7 @@ All services communicate over internal Docker network. External access only thro
 5. Document incident in system
 
 ### Contact
-For security issues, contact: security@your-company.com
+For security concerns, use [GitHub Security Advisories](https://github.com/grcengineering/gigachad-grc/security/advisories/new).
 
 ## Compliance
 
@@ -260,7 +260,7 @@ The following vulnerabilities have been identified but cannot be resolved withou
 
 To report a security vulnerability:
 1. Do NOT create a public GitHub issue
-2. Email security@your-company.com
+2. Use [GitHub Security Advisories](https://github.com/grcengineering/gigachad-grc/security/advisories/new)
 3. Include detailed description and reproduction steps
 4. We will respond within 48 hours
 
