@@ -184,13 +184,13 @@ gigachad-grc/
 
 ### Key Directories
 
-| Directory | Description |
-|-----------|-------------|
+| Directory                              | Description                                |
+| -------------------------------------- | ------------------------------------------ |
 | `services/shared/prisma/schema.prisma` | Single source of truth for database schema |
-| `services/controls/src/` | Main backend service with most features |
-| `frontend/src/pages/` | React page components |
-| `frontend/src/components/` | Reusable UI components |
-| `frontend/src/lib/api.ts` | API client and type definitions |
+| `services/controls/src/`               | Main backend service with most features    |
+| `frontend/src/pages/`                  | React page components                      |
+| `frontend/src/components/`             | Reusable UI components                     |
+| `frontend/src/lib/api.ts`              | API client and type definitions            |
 
 ## Making Changes
 
@@ -217,6 +217,7 @@ Fixes #123
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation only
@@ -226,6 +227,7 @@ Fixes #123
 - `chore`: Updating build tasks, dependencies, etc.
 
 **Examples:**
+
 ```
 feat(risks): add risk heatmap visualization
 
@@ -354,7 +356,7 @@ describe('ControlsService', () => {
     it('should create a control with valid data', async () => {
       const dto = { title: 'Test Control', status: 'draft' };
       const result = await service.create(dto, 'org-123', 'user-123');
-      
+
       expect(result.title).toBe('Test Control');
       expect(result.id).toBeDefined();
     });
@@ -367,26 +369,36 @@ describe('ControlsService', () => {
 ### Before Submitting
 
 1. **Update your branch** with the latest upstream changes:
+
    ```bash
    git fetch upstream
    git rebase upstream/main
    ```
 
 2. **Run linting**:
+
    ```bash
    npm run lint
    ```
 
-3. **Run tests**:
+3. **Run formatting**:
+
+   ```bash
+   npm run format
+   ```
+
+4. **Run tests**:
+
    ```bash
    npm run test
    ```
 
-4. **Test your changes manually** in the browser
+5. **Test your changes manually** in the browser
 
 ### Creating a Pull Request
 
 1. Push your branch to your fork:
+
    ```bash
    git push origin feature/your-feature
    ```
@@ -440,10 +452,9 @@ Instead, email security concerns to the maintainers directly or use GitHub's pri
 ## Recognition
 
 Contributors are recognized in:
+
 - The project README
 - Release notes
 - GitHub contributors page
 
 Thank you for contributing to GigaChad GRC!
-
-
