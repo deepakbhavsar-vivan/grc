@@ -9,7 +9,7 @@ import { RiskAssessmentModule } from './risk-assessment/risk-assessment.module';
 import { SecurityScannerModule } from './security-scanner/security-scanner.module';
 import { PrismaService } from './common/prisma.service';
 import { AuditService } from './common/audit.service';
-import { StorageModule } from '@gigachad-grc/shared';
+import { StorageModule, CacheModule } from '@gigachad-grc/shared';
 
 @Module({
   imports: [
@@ -17,6 +17,7 @@ import { StorageModule } from '@gigachad-grc/shared';
       isGlobal: true,
     }),
     StorageModule.forRoot(),
+    CacheModule.forRoot({ defaultTtl: 300 }), // 5-minute cache for dashboard widgets
     // RiskAssessmentModule and SecurityScannerModule must be imported BEFORE VendorsModule
     // because their routes (/vendors/:id/risk-assessment/*, /vendors/:id/security-scan/*)
     // are more specific than VendorsModule's catch-all /:id route

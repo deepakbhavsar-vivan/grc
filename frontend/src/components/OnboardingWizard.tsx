@@ -37,27 +37,36 @@ export function OnboardingWizard({ onDismiss }: OnboardingWizardProps) {
     }
   }, []);
 
-  // Fetch current state
+  // Fetch current state - use staleTime to prevent refetching on every render
   const { data: frameworks } = useQuery({
     queryKey: ['frameworks'],
     queryFn: () => frameworksApi.list().then((res) => res.data),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
   const { data: controls } = useQuery({
     queryKey: ['controls-count'],
     queryFn: () => controlsApi.list({ limit: 1 }).then((res) => res.data),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
 
-  const { data: summary } = useQuery({
-    queryKey: ['dashboard-summary'],
-    queryFn: () => dashboardApi.getSummary().then((res) => res.data),
+  // Use the consolidated dashboard-full endpoint to avoid duplicate API calls
+  const { data: dashboardData } = useQuery({
+    queryKey: ['dashboard-full'],
+    queryFn: () => dashboardApi.getFull().then((res) => res.data),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchOnWindowFocus: false,
   });
+  const summary = dashboardData?.summary;
 
   // Calculate completion status
   const hasFramework = (frameworks?.length || 0) > 0;
   const hasControls = (controls?.meta?.total || 0) > 0;
-  const hasImplementations = (summary?.controlStats?.implemented || 0) > 0;
-  const hasEvidence = (summary?.evidenceStats?.total || 0) > 0;
+  // Handle both old (controlStats) and new (controls) property paths
+  const hasImplementations = (summary?.controls?.byStatus?.implemented || summary?.controlStats?.implemented || 0) > 0;
+  const hasEvidence = (summary?.evidence?.total || summary?.evidenceStats?.total || 0) > 0;
 
   const steps: OnboardingStep[] = [
     {

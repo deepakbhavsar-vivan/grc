@@ -8,12 +8,14 @@ import { TemplatesModule } from './templates/templates.module';
 import { TrustAiModule } from './ai/trust-ai.module';
 import { PrismaService } from './common/prisma.service';
 import { AuditService } from './common/audit.service';
+import { CacheModule } from '@gigachad-grc/shared';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    CacheModule.forRoot({ defaultTtl: 300 }), // 5-minute cache for dashboard widgets
     QuestionnairesModule,
     KnowledgeBaseModule,
     TrustCenterModule,

@@ -67,6 +67,8 @@ export function ActionItemsWidget({
       const response = await api.get('/api/tasks/my', { params });
       return response.data as Task[];
     },
+    staleTime: 60 * 1000, // 1 minute - prevent excessive refetching
+    refetchOnWindowFocus: false,
   });
 
   // Update task mutation

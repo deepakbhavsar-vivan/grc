@@ -110,6 +110,8 @@ export function ActivityFeed({
       entityType: entityType || (filter !== 'all' ? filter : undefined),
       entityId,
     }).then(res => res.data),
+    staleTime: 60 * 1000, // 1 minute - prevent excessive refetching
+    refetchOnWindowFocus: false,
   });
 
   const activities: AuditLogEntry[] = data?.logs || [];
