@@ -2816,6 +2816,7 @@ model Vendor {
   @@index([organizationId, category])
   @@index([organizationId, complianceStatus])
   @@index([organizationId, lastReviewedAt])
+  @@index([organizationId, nextReviewDue]) // Added for vendor reviews due dashboard widget
   @@index([workspaceId])
   @@index([createdAt])
   @@map("vendors")

@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../common/prisma.service';
 import { AuditService } from '../common/audit.service';
 import { TprmConfigService } from '../config/tprm-config.service';
+import { CacheService } from '@gigachad-grc/shared';
 import { CreateVendorDto } from './dto/create-vendor.dto';
 import { UpdateVendorDto } from './dto/update-vendor.dto';
 
@@ -125,6 +126,7 @@ export class VendorsService {
     private readonly prisma: PrismaService,
     private readonly audit: AuditService,
     private readonly tprmConfig: TprmConfigService,
+    private readonly cache: CacheService,
   ) {}
 
   /**
@@ -434,8 +436,22 @@ export class VendorsService {
 
   /**
    * Get vendors due for review with categorization
+   * PERFORMANCE: Cached for 5 minutes to reduce dashboard load times
    */
   async getVendorsDueForReview(organizationId?: string) {
+    const cacheKey = `vendor-reviews-due:${organizationId || 'all'}`;
+    
+    return this.cache.getOrSet(
+      cacheKey,
+      async () => this.getVendorsDueForReviewUncached(organizationId),
+      300, // 5 minute cache
+    );
+  }
+
+  /**
+   * Uncached implementation of getVendorsDueForReview
+   */
+  private async getVendorsDueForReviewUncached(organizationId?: string) {
     const now = new Date();
     const oneWeekFromNow = new Date();
     oneWeekFromNow.setDate(oneWeekFromNow.getDate() + 7);

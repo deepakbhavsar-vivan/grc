@@ -447,6 +447,11 @@ export class UpdateBCDRPlanDto {
   @IsString()
   description?: string;
 
+  @ApiPropertyOptional({ enum: PlanType })
+  @IsOptional()
+  @IsEnum(PlanType)
+  planType?: PlanType;
+
   @ApiPropertyOptional({ enum: PlanStatus })
   @IsOptional()
   @IsEnum(PlanStatus)
@@ -502,7 +507,22 @@ export class UpdateBCDRPlanDto {
   @ApiPropertyOptional()
   @IsOptional()
   @IsString()
+  objectives?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  assumptions?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
   activationCriteria?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  deactivationCriteria?: string;
 
   @ApiPropertyOptional()
   @IsOptional()
@@ -1956,4 +1976,3 @@ export class IncidentFilterDto {
   @IsNumber()
   limit?: number;
 }
-
