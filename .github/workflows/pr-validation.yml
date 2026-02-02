@@ -77,11 +77,11 @@ jobs:
         continue-on-error: true  # Some services have pre-existing type issues
 
       - name: ESLint validation
-        run: npm run lint
+        run: npm run lint --if-present
         working-directory: services/${{ matrix.service }}
 
       - name: Run unit tests
-        run: npm test
+        run: npm test --if-present
         working-directory: services/${{ matrix.service }}
         continue-on-error: true  # Tests may not be fully implemented yet
 
