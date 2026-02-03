@@ -14,6 +14,7 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
+
 import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiTags,
@@ -42,6 +43,16 @@ import {
   ENDPOINT_RATE_LIMITS,
 } from '@gigachad-grc/shared';
 import { DevAuthGuard } from '../auth/dev-auth.guard';
+
+/**
+ * SECURITY: Sanitize filename for Content-Disposition header
+ * Prevents header injection attacks via malicious filenames
+ */
+function sanitizeFilename(filename: string): string {
+  return filename
+    .replace(/[\r\n\x00-\x1f\x7f]/g, '') // Remove control chars
+    .replace(/["\\/]/g, '_'); // Replace problematic chars
+}
 
 @ApiTags('evidence')
 @ApiBearerAuth()
@@ -121,7 +132,7 @@ export class EvidenceController {
     const { stream, mimeType, filename } = await this.evidenceService.getFileStream(id, user.organizationId);
     res.set({
       'Content-Type': mimeType || 'application/octet-stream',
-      'Content-Disposition': `inline; filename="${filename}"`,
+      'Content-Disposition': `inline; filename="${sanitizeFilename(filename)}"`,
     });
     stream.pipe(res);
   }
